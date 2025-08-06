@@ -27,8 +27,7 @@ letterState3 = StringVar()
 letterState4 = StringVar()
 letterState5 = StringVar()
 
-outList = ["test"]
-outListTtk = StringVar()
+outList = []
 
 def findWordByCharsPos(letters: list, inList: list = wordList): # Finds words containing given letters at given positions. _ indicates irrelevant position. Requires list exactly 5 items long. Returns list containing all matching words
     outlist = []
@@ -171,8 +170,6 @@ def handleRunButton():
 loadWords("wordle_words.txt", wordList)
 
 startWord = startingWords[rand.randint(0, len(startingWords)-1)]
-#print("Wordle output format is X(G/Y/B) X(G/Y/B) X(G/Y/B) X(G/Y/B) X(G/Y/B) where X is letter, (G/Y/B) indicates that position being green, yellow, or black.")
-#print("Starting word: " + startWord)
 
 wordEntryTitle = ttk.Label(mainframe, text='Wordle Word')
 entryForm = ttk.Entry(mainframe, textvariable=lastWordleWord)
@@ -220,11 +217,3 @@ letterState5Combobox.grid(column=4, row=0, padx="2")
 enterButton.grid(column=2, row=3)
 
 root.mainloop()
-
-"""while True:
-    wordleOutputRaw = "" # str containing wordle output. Letter followed by uppercase G, Y, B to indicate state. Space seperated.
-    wordleOutputRaw = input("Wordle Output: ")
-    wordleOutput = processInputStr(wordleOutputRaw)
-
-    updateLetterLists(wordleOutput)
-    print(guess())"""
