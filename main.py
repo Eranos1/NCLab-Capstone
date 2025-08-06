@@ -1,14 +1,35 @@
 import random as rand
 from tkinter import *
 from tkinter import ttk
+
 wordList = []
 #testWordList = ["girls", "boys", "tongue", "titan", "maist", "malam", "fenks"]
+
 startingWords = ["crane", "crate", "trace"]
+
 blackLetters = []
 greenLetters = ["_", "_", "_", "_", "_"]
 yellowLetters = []
+
 ALPHABET = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "w", "x", "y", "z"]
 VOWELS = ["a", "e", "i", "o", "u", "y"]
+
+root = Tk()
+root.title("Wordle Guesser")
+mainframe = ttk.Frame(root, padding="1")
+mainframe.grid(column=0, row=0)
+
+lastWordleWord = StringVar()
+
+letterState1 = StringVar()
+letterState2 = StringVar()
+letterState3 = StringVar()
+letterState4 = StringVar()
+letterState5 = StringVar()
+
+outList = ["test"]
+outListTtk = StringVar()
+
 def findWordByCharsPos(letters: list, inList: list = wordList): # Finds words containing given letters at given positions. _ indicates irrelevant position. Requires list exactly 5 items long. Returns list containing all matching words
     outlist = []
     if len(letters) != 5:
@@ -123,17 +144,87 @@ def guess(): # Produces the next guess list using blackLetters, yellowletters, g
     print(usedLetters)
     return None"""
 
+def handleRunButton():
+    global letterState1, letterState2, letterState3, letterState4, letterState5, lastWordleWord, outList, outListTtk
+    lastWordleWordStr = lastWordleWord.get()
+    tempList = [lastWordleWordStr[i:i+1] for i in range(0, len(lastWordleWordStr))]
+    if len(tempList) != 5:
+        return None
+    tempList[0] = tempList[0] + letterState1.get().upper()
+    tempList[1] = tempList[1] + letterState2.get().upper()
+    tempList[2] = tempList[2] + letterState3.get().upper()
+    tempList[3] = tempList[3] + letterState4.get().upper()
+    tempList[4] = tempList[4] + letterState5.get().upper()
+    updateLetterLists(tempList)
+    outList.clear()
+    outList = guess()
+    #outListTtk = StringVar(value=outList)
+    print(outList)
+    outBox['state'] = 'normal'
+    outBox.delete('1.0', 'end')
+    for item in outList:
+        outBox.insert('end', item)
+        print(item)
+    outBox['state'] = 'disabled'
+    return None
+
 loadWords("wordle_words.txt", wordList)
 
-
 startWord = startingWords[rand.randint(0, len(startingWords)-1)]
-print("Wordle output format is X(G/Y/B) X(G/Y/B) X(G/Y/B) X(G/Y/B) X(G/Y/B) where X is letter, (G/Y/B) indicates that position being green, yellow, or black.")
-print("Starting word: " + startWord)
+#print("Wordle output format is X(G/Y/B) X(G/Y/B) X(G/Y/B) X(G/Y/B) X(G/Y/B) where X is letter, (G/Y/B) indicates that position being green, yellow, or black.")
+#print("Starting word: " + startWord)
 
-while True:
+wordEntryTitle = ttk.Label(mainframe, text='Wordle Word')
+entryForm = ttk.Entry(mainframe, textvariable=lastWordleWord)
+
+letterStateFrame = ttk.Frame(mainframe)
+letterStateFrame.grid(column=2, row=2)
+
+letterState1Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState1, values=["G","Y","B"], width=1)
+letterState1Combobox.state(["readonly"])
+
+letterState2Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState2, values=["G","Y","B"], width=1)
+letterState2Combobox.state(["readonly"])
+
+letterState3Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState3, values=["G","Y","B"], width=1)
+letterState3Combobox.state(["readonly"])
+
+letterState4Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState4, values=["G","Y","B"], width=1)
+letterState4Combobox.state(["readonly"])
+
+letterState5Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState5, values=["G","Y","B"], width=1)
+letterState5Combobox.state(["readonly"])
+
+enterButton = ttk.Button(mainframe, text="Run Guess", command=handleRunButton)
+
+outputFrame = ttk.Frame(root)
+outputFrame.grid(column=1, row=0, sticky=(N,S,E))
+
+outBox = Text(outputFrame, state="disabled", width=5, height=10)
+outBox.grid()
+
+outListBoxScroll = ttk.Scrollbar(outputFrame, orient=VERTICAL, command=outBox.yview)
+outListBoxScroll.grid(column=1, row=0, sticky=(N,S))
+
+outBox["yscrollcommand"] = outListBoxScroll.set
+
+wordEntryTitle.grid(column=2, row=0)
+entryForm.grid(column=2, row=1, sticky=(E,W))
+
+letterState1Combobox.grid(column=0, row=0, padx="2")
+letterState2Combobox.grid(column=1, row=0, padx="2")
+letterState3Combobox.grid(column=2, row=0, padx="2")
+letterState4Combobox.grid(column=3, row=0, padx="2")
+letterState5Combobox.grid(column=4, row=0, padx="2")
+
+enterButton.grid(column=2, row=3)
+
+root.mainloop()
+
+"""while True:
     wordleOutputRaw = "" # str containing wordle output. Letter followed by uppercase G, Y, B to indicate state. Space seperated.
     wordleOutputRaw = input("Wordle Output: ")
     wordleOutput = processInputStr(wordleOutputRaw)
 
     updateLetterLists(wordleOutput)
-    print(guess())
+    print(guess())"""
