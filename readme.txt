@@ -1,0 +1,1 @@
+https://github.com/tabatkins/wordle-list
