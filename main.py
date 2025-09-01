@@ -1,15 +1,15 @@
 import random as rand
 from tkinter import *
 from tkinter import ttk
-
-wordList = []
+"""A small program, attempting to guess a Wordle answer in as few tries as possible."""
+word_list = []
 #testWordList = ["girls", "boys", "tongue", "titan", "maist", "malam", "fenks"]
 
 startingWords = ["crane", "crate", "trace"]
 
-blackLetters = []
-greenLetters = ["_", "_", "_", "_", "_"]
-yellowLetters = []
+black_letters = []
+green_letters = ["_", "_", "_", "_", "_"]
+yellow_letters = []
 
 ALPHABET = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "w", "x", "y", "z"]
 VOWELS = ["a", "e", "i", "o", "u", "y"]
@@ -19,185 +19,171 @@ root.title("Wordle Guesser")
 mainframe = ttk.Frame(root, padding="1")
 mainframe.grid(column=0, row=0)
 
-lastWordleWord = StringVar()
+last_wordle_word = StringVar()
 
-letterState1 = StringVar()
-letterState2 = StringVar()
-letterState3 = StringVar()
-letterState4 = StringVar()
-letterState5 = StringVar()
+letter_state_1 = StringVar()
+letter_state_2 = StringVar()
+letter_state_3 = StringVar()
+letter_state_4 = StringVar()
+letter_state_5 = StringVar()
 
-outList = []
+out_list = []
 
-def findWordByCharsPos(letters: list, inList: list = wordList): # Finds words containing given letters at given positions. _ indicates irrelevant position. Requires list exactly 5 items long. Returns list containing all matching words
-    outlist = []
+def find_word_by_chars_pos(letters: list, in_list: list):
+    """Finds words containing given letters at given positions. _ indicates irrelevant position. 
+    Requires list exactly 5 items long. Returns list containing all matching words"""
+    output_list = []
     if len(letters) != 5:
         return None
-    lettersDict = dict()
+    letters_dict = {}
     for i in range(len(letters)):
-        tempLet = letters[i]
-        lettersDict[i] = tempLet
-    for word in inList:
-        hasChars = True
+        temp_let = letters[i]
+        letters_dict[i] = temp_let
+    for word in in_list:
+        has_chars = True
         for i in range(5):
-            if lettersDict[i] == "_":
+            if letters_dict[i] == "_":
                 continue
             else:
-                if word[i] != lettersDict[i]:
-                    hasChars = False
-        if hasChars == True:
-            outlist.append(word)
-    return outlist
+                if word[i] != letters_dict[i]:
+                    has_chars = False
+        if has_chars is True:
+            output_list.append(word)
+    return output_list
 
-def findWordByCharAny(letters: list, inList: list = wordList): # Finds words containing given letters at any position. Returns list containing all matching words
-    outlist = []
-    for word in inList:
-        lettersInWord = True
+def find_word_by_chars_any(letters: list, in_list: list):
+    """Finds words containing given letters at any position. 
+    Returns list containing all matching words"""
+    output_list = []
+    for word in in_list:
+        letters_in_word = True
         for letter in letters:
             if letter not in word:
-                lettersInWord = False
-        if lettersInWord == True:
-            outlist.append(word)
+                letters_in_word = False
+        if letters_in_word is True:
+            output_list.append(word)
 
-    return outlist
+    return output_list
 
-def removeWordByChar(letters: list, inList: list = wordList): # Removes words containing given letters at any position from list. Returns list minus words with any given characters.
-    outlist = []
-    for word in inList:
-        inWord = False
+def remove_word_by_char(letters: list, in_list: list):
+    """Removes words containing given letters at any position from list. 
+    Returns list minus words with any given characters."""
+    output_list = []
+    for word in in_list:
+        in_word = False
         for letter in letters:
             if letter in word:
-                inWord = True
-        if inWord == False:
-            outlist.append(word)
-    return outlist
+                in_word = True
+        if in_word is False:
+            output_list.append(word)
+    return output_list
 
-def loadWords(path: str, outlist: list): # Loads a text file containing one word per line into a List datatype
-    with open(path, "r") as inFile:
-        for line in inFile:
-            outlist.append(line.strip())
-    return None
+def load_words(path: str, output_list: list):
+    """Loads a text file containing one word per line into a List datatype"""
+    with open(path, "r", encoding=None) as in_file:
+        for line in in_file:
+            output_list.append(line.strip())
 
-def processInputStr(instr: str): # Converts input string to list with each letter followed by its board state.
+def process_input_str(instr: str):
+    """Converts input string to list with each letter followed by its board state."""
+    out_dict = [instr[i:i+2] for i in range(0, len(instr), 2)]
+    return out_dict
 
-    outDict = [instr[i:i+2] for i in range(0, len(instr), 2)]
-    return outDict
-
-def updateLetterLists(inList: list): # Updates blackLetters, greenletters, yellowLetters based on user input.
-    inLetters = []
-    inStates = []
-    global blackLetters
-    global yellowLetters
-    global greenLetters
-    for x in inList:
-        inLetters.append(x[0])
-        inStates.append(x[1])
-    if len(inLetters) != len(inStates):
+def update_letter_lists(in_list: list):
+    """Updates black_letters, green_letters, yellow_letters based on user input."""
+    in_letters = []
+    in_states = []
+    #global black_letters
+    #global yellow_letters
+    #global green_letters
+    for x in in_list:
+        in_letters.append(x[0])
+        in_states.append(x[1])
+    if len(in_letters) != len(in_states):
         return None
-    for x in range(len(inLetters)):
-        if inStates[x] == "B":
-            if str.lower(inLetters[x]) not in blackLetters:
-                if str.lower(inLetters[x]) not in yellowLetters:
-                    blackLetters.append(str.lower(inLetters[x]))
-        elif inStates[x] == "Y":
-            if str.lower(inLetters[x]) not in yellowLetters:
-                yellowLetters.append(str.lower(inLetters[x]))
-        elif inStates[x] == "G":
-            greenLetters[x] = str.lower(inLetters[x])
-    for x in greenLetters:
+    for x in range(len(in_letters)):
+        if in_states[x] == "B":
+            if str.lower(in_letters[x]) not in black_letters:
+                if str.lower(in_letters[x]) not in yellow_letters:
+                    black_letters.append(str.lower(in_letters[x]))
+        elif in_states[x] == "Y":
+            if str.lower(in_letters[x]) not in yellow_letters:
+                yellow_letters.append(str.lower(in_letters[x]))
+        elif in_states[x] == "G":
+            green_letters[x] = str.lower(in_letters[x])
+    for x in green_letters:
         if x != "_":
-            while x in blackLetters:
-                blackLetters.remove(x)
+            while x in black_letters:
+                black_letters.remove(x)
     return None
 
-def guess(): # Produces the next guess list using blackLetters, yellowletters, greenLetters.
-    global blackLetters
-    global yellowLetters
-    global greenLetters
-    firstPass = []
-    secondPass = []
+def guess():
+    """Produces the next guess list using black_letters, yellow_letters, green_letters."""
+    first_pass = []
+    second_pass = []
     result = []
-    if len(blackLetters) > 0:
-        firstPass = removeWordByChar(blackLetters)
+    if len(black_letters) > 0:
+        first_pass = remove_word_by_char(black_letters, word_list)
     else:
-        firstPass = wordList
+        first_pass = word_list
     
-    secondPass = findWordByCharAny(yellowLetters, firstPass)
-    result = findWordByCharsPos(greenLetters, secondPass)
+    second_pass = find_word_by_chars_any(yellow_letters, first_pass)
+    result = find_word_by_chars_pos(green_letters, second_pass)
     return result
 
-"""def sortGuessList(guessList: list): # Sorts a list of guess words and returns the top 10 results in the sorted list
-    vowelWeight = 2
-    consonantWeight = 1
-    global blackLetters
-    global yellowLetters
-    global greenLetters
-    usedLetters = []
-    for x in blackLetters:
-        usedLetters.append(x)
-    for x in yellowLetters:
-        usedLetters.append(x)
-    for x in greenLetters:
-        if x != "_":
-            usedLetters.append(x)
-    print(usedLetters)
-    return None"""
-
-def handleRunButton():
-    global letterState1, letterState2, letterState3, letterState4, letterState5, lastWordleWord, outList, outListTtk
-    lastWordleWordStr = lastWordleWord.get()
-    tempList = [lastWordleWordStr[i:i+1] for i in range(0, len(lastWordleWordStr))]
-    if len(tempList) != 5:
+def handle_run_button():
+    """Initiates the main guess algorithm and handles its related components."""
+    global out_list
+    last_wordle_word_str = last_wordle_word.get()
+    temp_list = [last_wordle_word_str[i:i+1] for i in range(0, len(last_wordle_word_str))]
+    if len(temp_list) != 5:
         return None
-    tempList[0] = tempList[0] + letterState1.get().upper()
-    tempList[1] = tempList[1] + letterState2.get().upper()
-    tempList[2] = tempList[2] + letterState3.get().upper()
-    tempList[3] = tempList[3] + letterState4.get().upper()
-    tempList[4] = tempList[4] + letterState5.get().upper()
-    updateLetterLists(tempList)
-    outList.clear()
-    outList = guess()
-    #outListTtk = StringVar(value=outList)
-    print(outList)
+    temp_list[0] = temp_list[0] + letter_state_1.get().upper()
+    temp_list[1] = temp_list[1] + letter_state_2.get().upper()
+    temp_list[2] = temp_list[2] + letter_state_3.get().upper()
+    temp_list[3] = temp_list[3] + letter_state_4.get().upper()
+    temp_list[4] = temp_list[4] + letter_state_5.get().upper()
+    update_letter_lists(temp_list)
+    out_list.clear()
+    out_list = guess()
     outBox['state'] = 'normal'
     outBox.delete('1.0', 'end')
-    for item in outList:
-        outBox.insert('end', item)
-        print(item)
+    for item in out_list:
+        outBox.insert('end', item + "\n")
     outBox['state'] = 'disabled'
     return None
 
-loadWords("wordle_words.txt", wordList)
+load_words("wordle_words.txt", word_list)
 
 startWord = startingWords[rand.randint(0, len(startingWords)-1)]
 
 wordEntryTitle = ttk.Label(mainframe, text='Wordle Word')
-entryForm = ttk.Entry(mainframe, textvariable=lastWordleWord)
+entryForm = ttk.Entry(mainframe, textvariable=last_wordle_word)
 
 letterStateFrame = ttk.Frame(mainframe)
 letterStateFrame.grid(column=2, row=2)
 
-letterState1Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState1, values=["G","Y","B"], width=1)
+letterState1Combobox = ttk.Combobox(letterStateFrame, textvariable=letter_state_1, values=["G","Y","B"], width=1)
 letterState1Combobox.state(["readonly"])
 
-letterState2Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState2, values=["G","Y","B"], width=1)
+letterState2Combobox = ttk.Combobox(letterStateFrame, textvariable=letter_state_2, values=["G","Y","B"], width=1)
 letterState2Combobox.state(["readonly"])
 
-letterState3Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState3, values=["G","Y","B"], width=1)
+letterState3Combobox = ttk.Combobox(letterStateFrame, textvariable=letter_state_3, values=["G","Y","B"], width=1)
 letterState3Combobox.state(["readonly"])
 
-letterState4Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState4, values=["G","Y","B"], width=1)
+letterState4Combobox = ttk.Combobox(letterStateFrame, textvariable=letter_state_4, values=["G","Y","B"], width=1)
 letterState4Combobox.state(["readonly"])
 
-letterState5Combobox = ttk.Combobox(letterStateFrame, textvariable=letterState5, values=["G","Y","B"], width=1)
+letterState5Combobox = ttk.Combobox(letterStateFrame, textvariable=letter_state_5, values=["G","Y","B"], width=1)
 letterState5Combobox.state(["readonly"])
 
-enterButton = ttk.Button(mainframe, text="Run Guess", command=handleRunButton)
+enterButton = ttk.Button(mainframe, text="Run Guess", command=handle_run_button)
 
 outputFrame = ttk.Frame(root)
 outputFrame.grid(column=1, row=0, sticky=(N,S,E))
 
-outBox = Text(outputFrame, state="disabled", width=5, height=10)
+outBox = Text(outputFrame, state="disabled", width=7, height=10)
 outBox.grid()
 
 outListBoxScroll = ttk.Scrollbar(outputFrame, orient=VERTICAL, command=outBox.yview)
